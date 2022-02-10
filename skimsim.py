@@ -1,8 +1,10 @@
+#!/usr/bin/env python
+
 import pysam,random,argparse
 
-def skimsim(sample, input_vcf, output_vcf, p_het_dropout,p_hom_dropout,p_het_dropin,p_hom_dropin):
+def skimsim(sample, input_vcf, p_het_dropout,p_hom_dropout,p_het_dropin,p_hom_dropin):
 	vcf_in = pysam.VariantFile(input_vcf)
-	vcf_out = pysam.VariantFile(output_vcf, 'w', header=vcf_in.header)
+	vcf_out = pysam.VariantFile("-", 'w', header=vcf_in.header)
 	recs = vcf_in.fetch()
 
 	homref = [0,0]
@@ -73,11 +75,10 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 	sample = args.sample
 	input_vcf = args.input_vcf
-	output_vcf = args.output_vcf
 	p_het_dropout = args.p_het_dropout
 	p_hom_dropout = args.p_hom_dropout
 	p_het_dropin = args.p_het_dropin
 	p_hom_dropin = args.p_hom_dropin
 
-	skimsim(sample=sample, input_vcf=input_vcf, output_vcf=output_vcf, p_het_dropout=p_het_dropout, p_hom_dropout=p_hom_dropout, p_het_dropin=p_het_dropin, p_hom_dropin=p_hom_dropin)
+	skimsim(sample=sample, input_vcf=input_vcf, p_het_dropout=p_het_dropout, p_hom_dropout=p_hom_dropout, p_het_dropin=p_het_dropin, p_hom_dropin=p_hom_dropin)
 
