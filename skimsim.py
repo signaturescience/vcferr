@@ -7,7 +7,9 @@ def skimsim(sample, input_vcf, output_vcf, p_het_dropout,p_hom_dropout,p_het_dro
 
 	homref = [0,0]
 	homalt = [1,1]
+	## handle het as either 0,1 or 1,0
 	het = [0,1]
+	het2 = [1,0]
 
 	homref_het = []
 	homref_het.append(homref)
@@ -21,11 +23,6 @@ def skimsim(sample, input_vcf, output_vcf, p_het_dropout,p_hom_dropout,p_het_dro
 	homref_homalt.append(homref)
 	homref_homalt.append(homalt)
 	
-	homref_homalt_het = []
-	homref_homalt_het.append(homref)
-	homref_homalt_het.append(homalt)
-	homref_homalt_het.append(het)	
-
 	## get weight for probability of het dropout
 	phet_do_w = int(round(p_het_dropout,2)*100)
 	## get weight for probability of hom dropout
@@ -43,7 +40,13 @@ def skimsim(sample, input_vcf, output_vcf, p_het_dropout,p_hom_dropout,p_het_dro
 		## output of random choices is a list so use [0] index to get first element
 		## het dropout (0,1) to (0,0) or hom dropin (0,1) to (1,1)
 		## NOTE: this requires a list with three choices
-		if gt == het: 
+		if gt == het or gt == het2:
+			## alternate way of building list here
+			## need this to retain whatever coding (0,1) or (1,0) for gt
+			homref_homalt_het=[]
+			homref_homalt_het.append(homref)
+			homref_homalt_het.append(homalt)
+			homref_homalt_het.append(gt) 
 			gt = random.choices(homref_homalt_het, weights=(phet_do_w,phom_di_w,100-(phet_do_w+phom_di_w)))[0]
 		## hom dropout (1,1) to (0,1)
 		elif gt == homalt:
