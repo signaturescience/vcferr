@@ -90,7 +90,7 @@ def input_file_type(input_vcf):
 
 if __name__ == '__main__':
 
-# Argument parsing
+	## Argument parsing
 	parser = argparse.ArgumentParser(description = "Simulate error rates in genotype calls")
 
 	parser.add_argument("--sample", help="ID of sample in VCF file to be simulated", default = "", required=True)
@@ -109,12 +109,9 @@ if __name__ == '__main__':
 	p_hom_dropout = args.p_hom_dropout
 	p_het_dropin = args.p_het_dropin
 	p_hom_dropin = args.p_hom_dropin
-# check dropin/dropout rates are < 1
-	if (p_het_dropout + p_het_dropin) > 1:
-		parser.error("Heterozygous dropin + dropout cannot be greater than 1")
-	elif (p_hom_dropout + p_hom_dropin) > 1:
-		parser.error("Homozygous dropin + dropout cannot be greater than 1")
-
+	## check dropin/dropout rates are < 1
+	if (p_het_dropout + p_hom_dropin) > 1:
+		parser.error("Heterozygous dropout + homozygous dropin cannot be greater than 1")
 
 	skimsim(sample=sample, input_vcf=input_vcf, output_vcf=output_vcf, p_het_dropout=p_het_dropout, p_hom_dropout=p_hom_dropout, p_het_dropin=p_het_dropin, p_hom_dropin=p_hom_dropin)
 
