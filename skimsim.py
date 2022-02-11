@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 
 import pysam,random,argparse
+from os.path import exists
 
 def skimsim(sample, output_vcf, input_vcf, p_het_dropout,p_hom_dropout,p_het_dropin,p_hom_dropin):
 	vcf_in = pysam.VariantFile(input_vcf)
+	## Ensure sampleID is in header of vcf file
+	if not sample in list((vcf_in.header.samples)):
+		parser.error("VCF file does not appear to contain "+sample)
 	## switch to allow streaming if no vcf_out is specified
 	if output_vcf is None:
 		vcf_out = pysam.VariantFile("-", 'w', header=vcf_in.header)
@@ -93,6 +97,8 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 	sample = args.sample
 	input_vcf = args.input_vcf
+	if not exists(input_vcf):
+		parser.error("File "+input_vcf+" not found")
 	output_vcf = args.output_vcf
 	p_het_dropout = args.p_het_dropout
 	p_hom_dropout = args.p_hom_dropout
