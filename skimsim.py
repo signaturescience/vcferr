@@ -4,7 +4,10 @@ import pysam,random,argparse
 from os.path import exists
 
 def skimsim(sample, output_vcf, input_vcf, p_het_dropout,p_hom_dropout,p_het_dropin,p_hom_dropin):
-	vcf_in = pysam.VariantFile(input_vcf)
+	try:
+		vcf_in = pysam.VariantFile(input_vcf)
+	except:
+		parser.error("Error reading vcf input file "+input_vcf)
 	## Ensure sampleID is in header of vcf file
 	if not sample in list((vcf_in.header.samples)):
 		parser.error("VCF file does not appear to contain "+sample)
@@ -79,7 +82,11 @@ def drop_rate_type(variable):
 		raise argparse.ArgumentTypeError("Dropin/dropout must be between 0 and 1")
 
 		
-
+def input_file_type(input_vcf):
+	if not exists(input_vcf):
+		parser.error("File "+input_vcf+" not found")
+	else:
+		return(input_vcf)
 
 if __name__ == '__main__':
 
@@ -87,7 +94,7 @@ if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description = "Simulate error rates in genotype calls")
 
 	parser.add_argument("--sample", help="ID of sample in VCF file to be simulated", default = "", required=True)
-	parser.add_argument("--input_vcf", help="VCF file to simulate ex: example.vcf.gz", default = "", required=True)
+	parser.add_argument("--input_vcf", help="VCF file to simulate ex: example.vcf.gz", default = "", required=True, type=input_file_type)
 	parser.add_argument("--output_vcf", help="Output VCF file containing simulated genotypes ex: example.sim.vcf.gz", default = None)
 	parser.add_argument("--p_het_dropout", help="Probability of heterozygous dropout (0,1) to (0,0)", default = 0.1, type=drop_rate_type)
 	parser.add_argument("--p_hom_dropout", help="Probability of homozygous dropout (1,1) to (0,1)", default = 0, type=drop_rate_type)
@@ -97,8 +104,6 @@ if __name__ == '__main__':
 	args = parser.parse_args()
 	sample = args.sample
 	input_vcf = args.input_vcf
-	if not exists(input_vcf):
-		parser.error("File "+input_vcf+" not found")
 	output_vcf = args.output_vcf
 	p_het_dropout = args.p_het_dropout
 	p_hom_dropout = args.p_hom_dropout
