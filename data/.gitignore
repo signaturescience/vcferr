@@ -1,0 +1,4 @@
+*
+!.gitignore
+!example.vcf.gz
+!example.vcf.gz.tbi
