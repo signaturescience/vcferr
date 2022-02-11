@@ -64,18 +64,31 @@ def skimsim(sample, output_vcf, input_vcf, p_het_dropout,p_hom_dropout,p_het_dro
 		rec.samples[sample]['GT'] = tuple(gt)
 		vcf_out.write(rec)
 
+def drop_rate_type(variable):
+	try:
+		var_ret = float(variable)
+	except:
+		raise argparse.ArgumentTypeError("Dropin/dropout rates must be a number")
+	if var_ret < 1 and var_ret > 0:
+		return var_ret
+	else:
+		raise argparse.ArgumentTypeError("Dropin/dropout must be between 0 and 1")
+
+		
+
 
 if __name__ == '__main__':
 
+# Argument parsing
 	parser = argparse.ArgumentParser(description = "Simulate error rates in genotype calls")
 
-	parser.add_argument("--sample", help="ID of sample in VCF file to be simulated", default = "")
-	parser.add_argument("--input_vcf", help="VCF file to simulate ex: example.vcf.gz", default = "")
+	parser.add_argument("--sample", help="ID of sample in VCF file to be simulated", default = "", required=True)
+	parser.add_argument("--input_vcf", help="VCF file to simulate ex: example.vcf.gz", default = "", required=True)
 	parser.add_argument("--output_vcf", help="Output VCF file containing simulated genotypes ex: example.sim.vcf.gz", default = None)
-	parser.add_argument("--p_het_dropout", help="Probability of heterozygous dropout (0,1) to (0,0)", default = 0.1, type=float)
-	parser.add_argument("--p_hom_dropout", help="Probability of homozygous dropout (1,1) to (0,1)", default = 0, type=float)
-	parser.add_argument("--p_het_dropin", help="Probability of heterozygous dropin (0,0) to (0,1)", default = 0, type=float)
-	parser.add_argument("--p_hom_dropin", help="Probability of homozygous dropin (0,1) to (1,1)", default = 0, type=float)
+	parser.add_argument("--p_het_dropout", help="Probability of heterozygous dropout (0,1) to (0,0)", default = 0.1, type=drop_rate_type)
+	parser.add_argument("--p_hom_dropout", help="Probability of homozygous dropout (1,1) to (0,1)", default = 0, type=drop_rate_type)
+	parser.add_argument("--p_het_dropin", help="Probability of heterozygous dropin (0,0) to (0,1)", default = 0, type=drop_rate_type)
+	parser.add_argument("--p_hom_dropin", help="Probability of homozygous dropin (0,1) to (1,1)", default = 0, type=drop_rate_type)
 
 	args = parser.parse_args()
 	sample = args.sample
@@ -85,6 +98,12 @@ if __name__ == '__main__':
 	p_hom_dropout = args.p_hom_dropout
 	p_het_dropin = args.p_het_dropin
 	p_hom_dropin = args.p_hom_dropin
+# check dropin/dropout rates are < 1
+	if (p_het_dropout + p_het_dropin) > 1:
+		parser.error("Heterozygous dropin + dropout cannot be greater than 1")
+	elif (p_hom_dropout + p_hom_dropin) > 1:
+		parser.error("Homozygous dropin + dropout cannot be greater than 1")
+
 
 	skimsim(sample=sample, input_vcf=input_vcf, output_vcf=output_vcf, p_het_dropout=p_het_dropout, p_hom_dropout=p_hom_dropout, p_het_dropin=p_het_dropin, p_hom_dropin=p_hom_dropin)
 
