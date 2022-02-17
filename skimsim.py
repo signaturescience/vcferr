@@ -76,7 +76,7 @@ def drop_rate_type(variable):
 		var_ret = float(variable)
 	except:
 		raise argparse.ArgumentTypeError("Dropin/dropout rates must be a number")
-	if var_ret < 1 and var_ret > 0:
+	if var_ret <= 1 and var_ret >= 0:
 		return var_ret
 	else:
 		raise argparse.ArgumentTypeError("Dropin/dropout must be between 0 and 1")
