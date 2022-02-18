@@ -3,7 +3,7 @@
 import pysam,random,argparse
 from os.path import exists
 
-def skimsim(sample, output_vcf, input_vcf, p_het_dropout,p_hom_dropout,p_het_dropin,p_hom_dropin):
+def skimsim(sample, output_vcf, input_vcf, p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa):
 	try:
 		vcf_in = pysam.VariantFile(input_vcf)
 	except:
@@ -25,26 +25,24 @@ def skimsim(sample, output_vcf, input_vcf, p_het_dropout,p_hom_dropout,p_het_dro
 	het = [0,1]
 	het2 = [1,0]
 
-	homref_het = []
-	homref_het.append(homref)
-	homref_het.append(het)
-
-	homalt_het = []
-	homalt_het.append(homalt)
-	homalt_het.append(het)
-
-	homref_homalt = []
-	homref_homalt.append(homref)
-	homref_homalt.append(homalt)
+	homref_homalt_het = []
+	homref_homalt_het.append(homref)
+	homref_homalt_het.append(homalt)
+	homref_homalt_het.append(het)
 	
 	## get weight for probability of het dropout
-	phet_do_w = int(round(p_het_dropout,2)*100)
+	phet_do_w = int(round(p_rarr,2)*100)
 	## get weight for probability of hom dropout
-	phom_do_w = int(round(p_hom_dropout,2)*100)
+	phom_do_w = int(round(p_aara,2)*100)
 	## get weight for probability of het dropin
-	phet_di_w = int(round(p_het_dropin,2)*100)
-        ## get weight for probability of hom dropin
-	phom_di_w = int(round(p_hom_dropin,2)*100)
+	phet_di_w = int(round(p_rrra,2)*100)
+  ## get weight for probability of hom dropin
+	phom_di_w = int(round(p_raaa,2)*100)
+	## get weight for probability of double hom dropout
+	phom_do2_w = int(round(p_aarr,2)*100)
+	## get weight for probability of double hom alt dropin
+	phom_di2_w = int(round(p_rraa,2)*100)
+
 	
 	for rec in recs:
 		rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])
@@ -63,11 +61,13 @@ def skimsim(sample, output_vcf, input_vcf, p_het_dropout,p_hom_dropout,p_het_dro
 			homref_homalt_het.append(gt) 
 			gt = random.choices(homref_homalt_het, weights=(phet_do_w,phom_di_w,100-(phet_do_w+phom_di_w)))[0]
 		## hom dropout (1,1) to (0,1)
+		## or double homozygous dropout (1,1) to (0,0)
 		elif gt == homalt:
-			gt = random.choices(homalt_het, weights=(100-phom_do_w,phom_do_w))[0]
+			gt = random.choices(homref_homalt_het, weights=(phom_do2_w, 100-(phom_do2_w+phom_do_w),phom_do_w))[0]
 		## het dropin (0,0) to (0,1)
+		## or double heterozygous dropin (0,0) to (1,1)
 		elif gt == homref:
-			gt = random.choices(homref_het, weights=(100-phet_di_w,phet_di_w))[0]
+		  gt = random.choices(homref_homalt_het, weights=(100-(phom_di2_w+phet_di_w), phom_di2_w, phet_di_w))[0]
 		rec.samples[sample]['GT'] = tuple(gt)
 		vcf_out.write(rec)
 
@@ -96,22 +96,33 @@ if __name__ == '__main__':
 	parser.add_argument("--sample", help="ID of sample in VCF file to be simulated", default = "", required=True)
 	parser.add_argument("--input_vcf", help="VCF file to simulate ex: example.vcf.gz", default = "", required=True, type=input_file_type)
 	parser.add_argument("--output_vcf", help="Output VCF file containing simulated genotypes ex: example.sim.vcf.gz", default = None)
-	parser.add_argument("--p_het_dropout", help="Probability of heterozygous dropout (0,1) to (0,0)", default = 0.1, type=drop_rate_type)
-	parser.add_argument("--p_hom_dropout", help="Probability of homozygous dropout (1,1) to (0,1)", default = 0, type=drop_rate_type)
-	parser.add_argument("--p_het_dropin", help="Probability of heterozygous dropin (0,0) to (0,1)", default = 0, type=drop_rate_type)
-	parser.add_argument("--p_hom_dropin", help="Probability of homozygous dropin (0,1) to (1,1)", default = 0, type=drop_rate_type)
+	parser.add_argument("--p_rarr", help="Probability of heterozygous dropout (0,1) to (0,0)", default = 0.1, type=drop_rate_type)
+	parser.add_argument("--p_aara", help="Probability of homozygous alt dropout (1,1) to (0,1)", default = 0, type=drop_rate_type)
+	parser.add_argument("--p_rrra", help="Probability of heterozygous dropin (0,0) to (0,1)", default = 0, type=drop_rate_type)
+	parser.add_argument("--p_raaa", help="Probability of homozygous alt dropin (0,1) to (1,1)", default = 0, type=drop_rate_type)
+	parser.add_argument("--p_aarr", help="Probability of double homozygous alt dropout (1,1) to (0,0)", default = 0, type=drop_rate_type)
+	parser.add_argument("--p_rraa", help="Probability of double homozygous alt dropin (0,0) to (1,1)", default = 0, type=drop_rate_type)
 
 	args = parser.parse_args()
 	sample = args.sample
 	input_vcf = args.input_vcf
 	output_vcf = args.output_vcf
-	p_het_dropout = args.p_het_dropout
-	p_hom_dropout = args.p_hom_dropout
-	p_het_dropin = args.p_het_dropin
-	p_hom_dropin = args.p_hom_dropin
-	## check dropin/dropout rates are < 1
-	if (p_het_dropout + p_hom_dropin) > 1:
-		parser.error("Heterozygous dropout + homozygous dropin cannot be greater than 1")
+	p_rarr = args.p_rarr
+	p_aara = args.p_aara
+	p_rrra = args.p_rrra
+	p_raaa = args.p_raaa
+	p_aarr = args.p_aarr
+	p_rraa = args.p_rraa
 
-	skimsim(sample=sample, input_vcf=input_vcf, output_vcf=output_vcf, p_het_dropout=p_het_dropout, p_hom_dropout=p_hom_dropout, p_het_dropin=p_het_dropin, p_hom_dropin=p_hom_dropin)
+	## check dropin/dropout rates are < 1
+	if (p_rarr + p_raaa) > 1:
+		parser.error("Heterozygous dropout + homozygous alt dropin cannot be greater than 1")
+
+	if (p_aara + p_aarr) > 1:
+		parser.error("Homozygous dropout + double homozygous alt dropout cannot be greater than 1")
+		
+	if (p_rrra + p_rraa) > 1:
+		parser.error("Heterozygous dropin + double homozygous alt dropin cannot be greater than 1")
+		
+	skimsim(sample=sample, input_vcf=input_vcf, output_vcf=output_vcf, p_rarr=p_rarr, p_aara=p_aara, p_rrra=p_rrra, p_raaa=p_raaa, p_aarr=p_aarr, p_rraa=p_rraa)
 
