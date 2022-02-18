@@ -63,11 +63,11 @@ def skimsim(sample, output_vcf, input_vcf, p_het_dropout,p_hom_dropout,p_het_dro
 		## hom dropout (1,1) to (0,1)
 		## or double homozygous dropout (1,1) to (0,0)
 		elif gt == homalt:
-			gt = random.choices(homref_homalt_het, weights=(phom_do2_w, 100-(phom_do2_w+phom_do_w),phom_do_w)[0]
+			gt = random.choices(homref_homalt_het, weights=(phom_do2_w, 100-(phom_do2_w+phom_do_w),phom_do_w))[0]
 		## het dropin (0,0) to (0,1)
 		## or double heterozygous dropin (0,0) to (1,1)
 		elif gt == homref:
-		  gt = random.choices(homref_homalt_het, weights=(100-(phet_di2_w+phet_di_w), phet_di2_w, phet_di_w)[0]
+		  gt = random.choices(homref_homalt_het, weights=(100-(phet_di2_w+phet_di_w), phet_di2_w, phet_di_w))[0]
 		rec.samples[sample]['GT'] = tuple(gt)
 		vcf_out.write(rec)
 
@@ -112,7 +112,7 @@ if __name__ == '__main__':
 	p_het_dropin = args.p_het_dropin
 	p_hom_dropin = args.p_hom_dropin
 	p_hom_dropout2 = args.p_hom_dropout2
-  p_het_dropin2 = args.p_het_dropin2
+	p_het_dropin2 = args.p_het_dropin2
 
 	## check dropin/dropout rates are < 1
 	if (p_het_dropout + p_hom_dropin) > 1:
