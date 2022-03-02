@@ -3,7 +3,7 @@
 import pysam,random,argparse
 from os.path import exists
 
-def skimsim(sample, output_vcf, input_vcf, p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa):
+def vcferr(sample, output_vcf, input_vcf, p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa):
 	try:
 		vcf_in = pysam.VariantFile(input_vcf)
 	except:
@@ -124,5 +124,5 @@ if __name__ == '__main__':
 	if (p_rrra + p_rraa) > 1:
 		parser.error("Heterozygous dropin + double homozygous alt dropin cannot be greater than 1")
 		
-	skimsim(sample=sample, input_vcf=input_vcf, output_vcf=output_vcf, p_rarr=p_rarr, p_aara=p_aara, p_rrra=p_rrra, p_raaa=p_raaa, p_aarr=p_aarr, p_rraa=p_rraa)
+	vcferr(sample=sample, input_vcf=input_vcf, output_vcf=output_vcf, p_rarr=p_rarr, p_aara=p_aara, p_rrra=p_rrra, p_raaa=p_raaa, p_aarr=p_aarr, p_rraa=p_rraa)
 
