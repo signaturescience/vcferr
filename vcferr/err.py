@@ -1,9 +1,68 @@
-#!/usr/bin/env python
+import pysam,random
+import click
 
-import pysam,random,argparse
-from os.path import exists
+def drop_rate_type(variable):
+	try:
+		var_ret = float(variable)
+	except:
+                parser.error("Dropin/dropout rates must be a number")
+	if var_ret <= 1 and var_ret >= 0:
+		return var_ret
+	else:
+		parser.error("Dropin/dropout must be between 0 and 1")
 
-def vcferr(sample, output_vcf, input_vcf, p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa):
+@click.command()
+@click.argument('input_vcf',
+	metavar='<input_vcf>'
+)
+
+@click.option('-s', '--sample',
+	help="ID of sample in VCF file to be simulated",
+	required=True
+)
+
+@click.option('-o', '--output_vcf',
+	help="Output VCF file containing simulated genotypes ex: example.sim.vcf.gz",
+	default=None
+)
+
+@click.option('-p_rarr', '--p_rarr',
+	help="Probability of heterozygous dropout (0,1) to (0,0)",
+	default=0.1,
+	type=drop_rate_type
+)
+
+@click.option('-p_aara', '--p_aara',
+        help="Probability of homozygous alt dropout (1,1) to (0,1)",
+        default=0,
+        type=drop_rate_type
+)
+
+@click.option('-p_rrra', '--p_rrra',
+        help="Probability of heterozygous dropin (0,0) to (0,1)",
+        default=0,
+        type=drop_rate_type
+)
+
+@click.option('-p_raaa', '--p_raaa',
+        help="Probability of homozygous alt dropin (0,1) to (1,1)",
+        default=0,
+        type=drop_rate_type
+)
+
+@click.option('-p_aarr', '--p_aarr',
+        help="Probability of double homozygous alt dropout (1,1) to (0,0)",
+        default=0,
+        type=drop_rate_type
+)
+
+@click.option('-p_rraa', '--p_rraa',
+        help="Probability of double homozygous alt dropin (0,0) to (1,1)",
+        default=0,
+        type=drop_rate_type
+)
+@click.pass_context
+def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa):
 	try:
 		vcf_in = pysam.VariantFile(input_vcf)
 	except:
@@ -36,7 +95,7 @@ def vcferr(sample, output_vcf, input_vcf, p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_r
 	phom_do_w = int(round(p_aara,2)*100)
 	## get weight for probability of het dropin
 	phet_di_w = int(round(p_rrra,2)*100)
-  ## get weight for probability of hom dropin
+        ## get weight for probability of hom dropin
 	phom_di_w = int(round(p_raaa,2)*100)
 	## get weight for probability of double hom dropout
 	phom_do2_w = int(round(p_aarr,2)*100)
@@ -82,47 +141,3 @@ def drop_rate_type(variable):
 		raise argparse.ArgumentTypeError("Dropin/dropout must be between 0 and 1")
 
 		
-def input_file_type(input_vcf):
-	if not exists(input_vcf):
-		parser.error("File "+input_vcf+" not found")
-	else:
-		return(input_vcf)
-
-if __name__ == '__main__':
-
-	## Argument parsing
-	parser = argparse.ArgumentParser(description = "Simulate error rates in genotype calls")
-
-	parser.add_argument("--sample", help="ID of sample in VCF file to be simulated", default = "", required=True)
-	parser.add_argument("--input_vcf", help="VCF file to simulate ex: example.vcf.gz", default = "", required=True, type=input_file_type)
-	parser.add_argument("--output_vcf", help="Output VCF file containing simulated genotypes ex: example.sim.vcf.gz", default = None)
-	parser.add_argument("--p_rarr", help="Probability of heterozygous dropout (0,1) to (0,0)", default = 0.1, type=drop_rate_type)
-	parser.add_argument("--p_aara", help="Probability of homozygous alt dropout (1,1) to (0,1)", default = 0, type=drop_rate_type)
-	parser.add_argument("--p_rrra", help="Probability of heterozygous dropin (0,0) to (0,1)", default = 0, type=drop_rate_type)
-	parser.add_argument("--p_raaa", help="Probability of homozygous alt dropin (0,1) to (1,1)", default = 0, type=drop_rate_type)
-	parser.add_argument("--p_aarr", help="Probability of double homozygous alt dropout (1,1) to (0,0)", default = 0, type=drop_rate_type)
-	parser.add_argument("--p_rraa", help="Probability of double homozygous alt dropin (0,0) to (1,1)", default = 0, type=drop_rate_type)
-
-	args = parser.parse_args()
-	sample = args.sample
-	input_vcf = args.input_vcf
-	output_vcf = args.output_vcf
-	p_rarr = args.p_rarr
-	p_aara = args.p_aara
-	p_rrra = args.p_rrra
-	p_raaa = args.p_raaa
-	p_aarr = args.p_aarr
-	p_rraa = args.p_rraa
-
-	## check dropin/dropout rates are < 1
-	if (p_rarr + p_raaa) > 1:
-		parser.error("Heterozygous dropout + homozygous alt dropin cannot be greater than 1")
-
-	if (p_aara + p_aarr) > 1:
-		parser.error("Homozygous dropout + double homozygous alt dropout cannot be greater than 1")
-		
-	if (p_rrra + p_rraa) > 1:
-		parser.error("Heterozygous dropin + double homozygous alt dropin cannot be greater than 1")
-		
-	vcferr(sample=sample, input_vcf=input_vcf, output_vcf=output_vcf, p_rarr=p_rarr, p_aara=p_aara, p_rrra=p_rrra, p_raaa=p_raaa, p_aarr=p_aarr, p_rraa=p_rraa)
-
