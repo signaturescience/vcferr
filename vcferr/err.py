@@ -1,15 +1,17 @@
 import pysam,random
 import click
 
-def drop_rate_type(variable):
+def error_rate(variable):
 	try:
 		var_ret = float(variable)
 	except:
-                parser.error("Dropin/dropout rates must be a number")
+		print("Drop in and drop out rates must be a number")
+		raise ValueError
 	if var_ret <= 1 and var_ret >= 0:
 		return var_ret
 	else:
-		parser.error("Dropin/dropout must be between 0 and 1")
+		print("Drop in and drop out rates must be between 0 and 1")
+		raise ValueError
 
 @click.command()
 @click.argument('input_vcf',
@@ -29,47 +31,49 @@ def drop_rate_type(variable):
 @click.option('-p_rarr', '--p_rarr',
 	help="Probability of heterozygous dropout (0,1) to (0,0)",
 	default=0.1,
-	type=drop_rate_type
+	type=error_rate
 )
 
 @click.option('-p_aara', '--p_aara',
         help="Probability of homozygous alt dropout (1,1) to (0,1)",
         default=0,
-        type=drop_rate_type
+        type=error_rate
 )
 
 @click.option('-p_rrra', '--p_rrra',
         help="Probability of heterozygous dropin (0,0) to (0,1)",
         default=0,
-        type=drop_rate_type
+        type=error_rate
 )
 
 @click.option('-p_raaa', '--p_raaa',
         help="Probability of homozygous alt dropin (0,1) to (1,1)",
         default=0,
-        type=drop_rate_type
+        type=error_rate
 )
 
 @click.option('-p_aarr', '--p_aarr',
         help="Probability of double homozygous alt dropout (1,1) to (0,0)",
         default=0,
-        type=drop_rate_type
+        type=error_rate
 )
 
 @click.option('-p_rraa', '--p_rraa',
         help="Probability of double homozygous alt dropin (0,0) to (1,1)",
         default=0,
-        type=drop_rate_type
+        type=error_rate
 )
 @click.pass_context
 def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa):
 	try:
 		vcf_in = pysam.VariantFile(input_vcf)
 	except:
-		parser.error("Error reading vcf input file "+input_vcf)
+		print("Error reading vcf input file "+input_vcf)
+		raise ValueError
 	## Ensure sampleID is in header of vcf file
 	if not sample in list((vcf_in.header.samples)):
-		parser.error("VCF file does not appear to contain "+sample)
+		print("VCF file does not appear to contain "+sample)
+		raise ValueError
 	## switch to allow streaming if no vcf_out is specified
 	if output_vcf is None:
 		vcf_out = pysam.VariantFile("-", 'w', header=vcf_in.header)
@@ -130,14 +134,3 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
 		rec.samples[sample]['GT'] = tuple(gt)
 		vcf_out.write(rec)
 
-def drop_rate_type(variable):
-	try:
-		var_ret = float(variable)
-	except:
-		raise argparse.ArgumentTypeError("Dropin/dropout rates must be a number")
-	if var_ret <= 1 and var_ret >= 0:
-		return var_ret
-	else:
-		raise argparse.ArgumentTypeError("Dropin/dropout must be between 0 and 1")
-
-		
