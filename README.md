@@ -6,8 +6,14 @@ The `vcferr` module is a lightweight error simulation framework. The tool operat
 - aara = Homozygous alt drop out: (1,1) to (0,1)
 - rrra = Heterozygous drop in: (0,0) to (0,1)
 - raaa = Homozygous alt drop in: (0,1) or (1,0) to (1,1)
-- aarr = Double homozygous alt dropout: (1,1) to (0,0)
-- rraa = Double homozygous alt dropin: (0,0) to (1,1)
+- aarr = Double homozygous alt drop out: (1,1) to (0,0)
+- rraa = Double homozygous alt drop in: (0,0) to (1,1)
+
+In addition to error models, the tool includes functionality to inject probability of missingness:
+
+- ramm = Heterozygous to missing: (0,1) or (1,0) to (.,.)
+- rrmm = Homozygous ref to missing: (0,0) to (.,.)
+- aamm = Homozygous alt to missing: (1,1) to (.,.)
 
 ## Installation
 
@@ -45,5 +51,11 @@ Note that multiple kinds of error can be simulated simulatenously:
 
 ```
 vcferr data/example.vcf.gz --sample='sample1' --p_rarr=0.2 --p_raaa=0.1 --p_rrra=0.2 --p_aara=0
+```
+
+The tool can also simulate missingness:
+
+```
+vcferr data/example.vcf.gz --sample='sample1' --p_rarr=0.2 --p_raaa=0.1 --p_rrra=0.2 --p_aara=0 --p_rrmm=0.5
 ```
 
