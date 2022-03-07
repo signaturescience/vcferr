@@ -3,3 +3,4 @@
 *.tsv
 !example.vcf.gz
 !example.vcf.gz.tbi
+__pycache__/
