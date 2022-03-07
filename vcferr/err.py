@@ -19,7 +19,7 @@ import pysam
 
 @click.option('-p_rarr', '--p_rarr',
     help='Probability of heterozygous drop out (0,1) to (0,0)',
-    default=0.1,
+    default=0,
     type=float
 )
 
