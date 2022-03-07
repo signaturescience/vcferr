@@ -18,7 +18,7 @@ import pysam
 )
 
 @click.option('-p_rarr', '--p_rarr',
-    help='Probability of heterozygous drop out (0,1) to (0,0)',
+    help='Probability of heterozygous drop out (0,1) or (1,0) to (0,0)',
     default=0,
     type=float
 )
@@ -36,7 +36,7 @@ import pysam
 )
 
 @click.option('-p_raaa', '--p_raaa',
-    help='Probability of homozygous alt drop in (0,1) to (1,1)',
+    help='Probability of homozygous alt drop in (0,1) or (1,0) to (1,1)',
     default=0,
     type=float
 )
@@ -60,7 +60,7 @@ import pysam
 )
 
 @click.option('-p_ramm', '--p_ramm',
-    help='Probability of heterozygous to missing (0,1) to (.,.)',
+    help='Probability of heterozygous to missing (0,1) or (1,0) to (.,.)',
     default=0,
     type=float
 )
