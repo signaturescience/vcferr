@@ -6,12 +6,12 @@ def error_rate(variable):
     try:
         var_ret = float(variable)
     except:
-        print("Drop in and drop out rates must be a number")
+        print('Drop in and drop out rates must be a number')
         raise ValueError
     if var_ret <= 1 and var_ret >= 0:
         return var_ret
     else:
-        print("Drop in and drop out rates must be between 0 and 1")
+        print('Drop in and drop out rates must be between 0 and 1')
         raise ValueError
 
 @click.command()
@@ -20,65 +20,65 @@ def error_rate(variable):
 )
 
 @click.option('-s', '--sample',
-    help="ID of sample in VCF file to be simulated",
+    help='ID of sample in VCF file to be simulated',
     required=True
 )
 
 @click.option('-o', '--output_vcf',
-    help="Output VCF file containing simulated genotypes ex: example.sim.vcf.gz",
+    help='Output VCF file containing simulated genotypes ex: example.sim.vcf.gz',
     default=None
 )
 
 @click.option('-p_rarr', '--p_rarr',
-    help="Probability of heterozygous dropout (0,1) to (0,0)",
+    help='Probability of heterozygous drop out (0,1) to (0,0)',
     default=0.1,
     type=error_rate
 )
 
 @click.option('-p_aara', '--p_aara',
-        help="Probability of homozygous alt dropout (1,1) to (0,1)",
+        help='Probability of homozygous alt drop out (1,1) to (0,1)',
         default=0,
         type=error_rate
 )
 
 @click.option('-p_rrra', '--p_rrra',
-        help="Probability of heterozygous dropin (0,0) to (0,1)",
+        help='Probability of heterozygous drop in (0,0) to (0,1)',
         default=0,
         type=error_rate
 )
 
 @click.option('-p_raaa', '--p_raaa',
-        help="Probability of homozygous alt dropin (0,1) to (1,1)",
+        help='Probability of homozygous alt drop in (0,1) to (1,1)',
         default=0,
         type=error_rate
 )
 
 @click.option('-p_aarr', '--p_aarr',
-        help="Probability of double homozygous alt dropout (1,1) to (0,0)",
+        help='Probability of double homozygous alt drop out (1,1) to (0,0)',
         default=0,
         type=error_rate
 )
 
 @click.option('-p_rraa', '--p_rraa',
-        help="Probability of double homozygous alt dropin (0,0) to (1,1)",
+        help='Probability of double homozygous alt drop in (0,0) to (1,1)',
         default=0,
         type=error_rate
 )
 
 @click.option('-p_rrmm', '--p_rrmm',
-        help="Probability of homozygous ref to missing (0,0) to (.,.)",
+        help='Probability of homozygous ref to missing (0,0) to (.,.)',
         default=0,
         type=error_rate
 )
 
 @click.option('-p_ramm', '--p_ramm',
-        help="Probability of heterozygous to missing (0,1) to (.,.)",
+        help='Probability of heterozygous to missing (0,1) to (.,.)',
         default=0,
         type=error_rate
 )
 
 @click.option('-p_aamm', '--p_aamm',
-        help="Probability of homozygous alt to missing (0,0) to (.,.)",
+        help='Probability of homozygous alt to missing (0,0) to (.,.)',
         default=0,
         type=error_rate
 )
@@ -88,15 +88,15 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
     try:
         vcf_in = pysam.VariantFile(input_vcf)
     except:
-        print("Error reading vcf input file "+input_vcf)
+        print('Error reading vcf input file '+input_vcf)
         raise ValueError
     ## Ensure sampleID is in header of vcf file
     if not sample in list((vcf_in.header.samples)):
-        print("VCF file does not appear to contain "+sample)
+        print('VCF file does not appear to contain '+sample)
         raise ValueError
     ## switch to allow streaming if no vcf_out is specified
     if output_vcf is None:
-        vcf_out = pysam.VariantFile("-", 'w', header=vcf_in.header)
+        vcf_out = pysam.VariantFile('-', 'w', header=vcf_in.header)
     else:
         vcf_out = pysam.VariantFile(output_vcf, 'w', header=vcf_in.header)
 
