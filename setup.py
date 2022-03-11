@@ -1,6 +1,5 @@
 import pathlib
-from setuptools import setup
-
+from setuptools import setup,find_packages
 HERE=pathlib.Path(__file__).resolve().parent
 README=(HERE/"README.md").read_text()
 
@@ -18,5 +17,5 @@ setup(
         [console_scripts]
         vcferr=vcferr.__main__:vcferr    
     ''',
-    packages=setuptools.find_packages(),
+    packages=find_packages(),
     zip_safe=False)
