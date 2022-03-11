@@ -4,3 +4,6 @@
 !example.vcf.gz
 !example.vcf.gz.tbi
 __pycache__/
+build
+dist
+vcferr.egg-info
