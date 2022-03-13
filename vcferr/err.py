@@ -71,8 +71,8 @@ import pysam
     type=float
 )
 
-@click.option('-seed', '--seed',
-    help='(Optional) Random number seed',
+@click.option('-a', '--seed',
+    help='Random number seed',
     default=None,
     type=int
 )
