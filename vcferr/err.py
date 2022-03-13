@@ -71,9 +71,16 @@ import pysam
     type=float
 )
 
+@click.option('-a', '--seed',
+    help='Random number seed',
+    default=None,
+    type=int
+)
+
 @click.pass_context
 
-def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm):
+def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm,seed):
+    random.seed(seed)
     ## create list of error modes and missigness for checks
     p_args = [p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm]
     if any(x > 1 for x in p_args) or any(x < 0 for x in p_args):
