@@ -9,6 +9,7 @@ setup(
     description='Probabilistic VCF genotype error simulation',
     long_description=README,
     long_description_content_type="text/markdown",
+    license='MIT',
     url='https://github.com/signaturescience/vcferr',
     project_urls={
         'Bug Reports': 'https://github.com/signaturescience/vcferr/issues'},
