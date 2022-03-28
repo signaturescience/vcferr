@@ -19,7 +19,7 @@ In addition to error models, the tool includes functionality to inject probabili
 
 The `vcferr` tool is delivered as a Python module. 
 
-To install from `PyPi`:
+To install from PyPi:
 
 ```
 pip install vcferr
@@ -43,7 +43,7 @@ Note that the following dependencies are used by `vcferr`:
 
 The examples below demonstrate basic usage with the `example.vcf.gz` in the `data/` directory of the `vcferr` GitHub repository.
 
-The following is a basic example of usage that simulates 20% heterozygous dropout:
+The following is a basic example that simulates 20% heterozygous dropout:
 
 ```
 vcferr data/example.vcf.gz --sample='sample1' --p_rarr=0.2
