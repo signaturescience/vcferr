@@ -71,6 +71,12 @@ import pysam
     type=float
 )
 
+@click.option('-k', '--keep_original',
+    help='Optionally retain original sample information',
+    default=False,
+    type=bool
+)
+
 @click.option('-a', '--seed',
     help='Random number seed',
     default=None,
@@ -79,7 +85,7 @@ import pysam
 
 @click.pass_context
 
-def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm,seed):
+def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm,keep_original,seed):
     random.seed(seed)
     ## create list of error modes and missigness for checks
     p_args = [p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm]
@@ -102,7 +108,8 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
     else:
         vcf_out = pysam.VariantFile(output_vcf, 'w', header=vcf_in.header)
     if keep_original == True:
-        vcf_out.header.add_sample(original_prefix)
+        original_suffix=sample+'_orig'
+        vcf_out.header.add_sample(original_suffix)
 
     recs = vcf_in.fetch()
 
@@ -141,9 +148,9 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
     paamm_w=int(round(p_aamm,2)*100)
 
     for rec in recs:
-        ## Code to keep original sample as sample named original_prefix
+        ## Code to keep original sample as sample named original_suffix
         if keep_original == True:
-            rec = clone_sample(original_prefix, sample, rec, vcf_out)
+            rec = clone_sample(original_suffix, sample, rec, vcf_out)
         rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])
         gt=list(rec.samples[sample]['GT'])
         ## use weights for random selections by prob
@@ -171,7 +178,7 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
         rec.samples[sample]['GT'] = tuple(gt)
         vcf_out.write(rec)
 
-def clone_sample(prefix, sample, input_record, output_vcf):
+def clone_sample(new_sample, sample, input_record, output_vcf):
     return_rec = output_vcf.new_record()
     ## rec.alleles     rec.chrom       rec.copy(       rec.format      rec.id          rec.pos         rec.ref         rec.rlen        rec.start       rec.translate(
     ## rec.alts        rec.contig      rec.filter      rec.header      rec.info        rec.qual        rec.rid         rec.samples     rec.stop
@@ -187,17 +194,21 @@ def clone_sample(prefix, sample, input_record, output_vcf):
     return_rec.contig = input_record.contig
     #return_rec.filter = input_record.filter
     ## Not header
-    return_rec.info = input_record.info
+    #return_rec.info = input_record.info
     return_rec.qual = input_record.qual
     return_rec.rid = input_record.rid
     return_rec.stop = input_record.stop
     gt=list(input_record.samples[sample]['GT'])
-    info_fields = list(rec.samples[sample])
+    info_fields = list(input_record.samples[sample])
     for sample_id in gt:
         if sample == sample_id:
             for info in info_fields:
-                return_rec.sample[prefix][info] = input_record.sample[sample][info]
+                if info == "GP":
+                   continue
+                return_rec.samples[new_sample][info] = input_record.samples[sample][info]
         for info in info_fields:
-            return_rec.sample[sample][info] = input_record.sample[sample][info]
+            if info == "GP":
+                continue
+            return_rec.samples[sample][info] = input_record.samples[sample][info]
 
     return(return_rec)
