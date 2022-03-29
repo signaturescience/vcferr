@@ -151,7 +151,7 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
         ## Code to keep original sample as sample named original_suffix
         if keep_original == True:
             rec = clone_sample(original_suffix, sample, rec, vcf_out)
-        rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])
+        #rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])
         gt=list(rec.samples[sample]['GT'])
         ## use weights for random selections by prob
         ## for example (25,75) with homref first would be a 25% chance of het dropout
@@ -198,17 +198,18 @@ def clone_sample(new_sample, sample, input_record, output_vcf):
     return_rec.qual = input_record.qual
     return_rec.rid = input_record.rid
     return_rec.stop = input_record.stop
-    gt=list(input_record.samples[sample]['GT'])
+    sample_list=list(input_record.samples)
     info_fields = list(input_record.samples[sample])
-    for sample_id in gt:
+    for sample_id in sample_list:
         if sample == sample_id:
             for info in info_fields:
                 if info == "GP":
                    continue
-                return_rec.samples[new_sample][info] = input_record.samples[sample][info]
+                assign_info = input_record.samples[sample_id][info]
+                return_rec.samples[new_sample][info] = assign_info
         for info in info_fields:
             if info == "GP":
                 continue
-            return_rec.samples[sample][info] = input_record.samples[sample][info]
-
+            assign_info = input_record.samples[sample_id][info]
+            return_rec.samples[sample_id][info] = assign_info
     return(return_rec)
