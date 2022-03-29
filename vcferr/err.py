@@ -101,6 +101,8 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
         vcf_out = pysam.VariantFile('-', 'w', header=vcf_in.header)
     else:
         vcf_out = pysam.VariantFile(output_vcf, 'w', header=vcf_in.header)
+    if keep_original == True:
+        vcf_out.header.add_sample(original_prefix)
 
     recs = vcf_in.fetch()
 
@@ -139,6 +141,9 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
     paamm_w=int(round(p_aamm,2)*100)
 
     for rec in recs:
+        ## Code to keep original sample as sample named original_prefix
+        if keep_original == True:
+            rec = clone_sample(original_prefix, sample, rec, vcf_out)
         rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])
         gt=list(rec.samples[sample]['GT'])
         ## use weights for random selections by prob
@@ -165,3 +170,34 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
             gt = random.choices(homref_homalt_het, weights=(100-(phom_di2_w+phet_di_w+prrmm_w), phom_di2_w, phet_di_w, prrmm_w))[0]
         rec.samples[sample]['GT'] = tuple(gt)
         vcf_out.write(rec)
+
+def clone_sample(prefix, sample, input_record, output_vcf):
+    return_rec = output_vcf.new_record()
+    ## rec.alleles     rec.chrom       rec.copy(       rec.format      rec.id          rec.pos         rec.ref         rec.rlen        rec.start       rec.translate(
+    ## rec.alts        rec.contig      rec.filter      rec.header      rec.info        rec.qual        rec.rid         rec.samples     rec.stop
+    return_rec.alleles = input_record.alleles
+    return_rec.chrom = input_record.chrom
+    #return_rec.format = input_record.format
+    return_rec.id = input_record.id
+    return_rec.pos = input_record.pos
+    return_rec.ref = input_record.ref
+    return_rec.rlen = input_record.rlen
+    return_rec.start = input_record.start
+    return_rec.alts = input_record.alts
+    return_rec.contig = input_record.contig
+    #return_rec.filter = input_record.filter
+    ## Not header
+    return_rec.info = input_record.info
+    return_rec.qual = input_record.qual
+    return_rec.rid = input_record.rid
+    return_rec.stop = input_record.stop
+    gt=list(input_record.samples[sample]['GT'])
+    info_fields = list(rec.samples[sample])
+    for sample_id in gt:
+        if sample == sample_id:
+            for info in info_fields:
+                return_rec.sample[prefix][info] = input_record.sample[sample][info]
+        for info in info_fields:
+            return_rec.sample[sample][info] = input_record.sample[sample][info]
+
+    return(return_rec)
