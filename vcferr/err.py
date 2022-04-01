@@ -182,7 +182,7 @@ def clone_sample(new_sample, sample, input_record, output_vcf):
     return_rec = output_vcf.new_record()
     ## rec.alleles     rec.chrom       rec.copy(       rec.format      rec.id          rec.pos         rec.ref         rec.rlen        rec.start       rec.translate(
     ## rec.alts        rec.contig      rec.filter      rec.header      rec.info        rec.qual        rec.rid         rec.samples     rec.stop
-    return_rec.alleles = input_record.alleles
+    #return_rec.alleles = input_record.alleles
     return_rec.chrom = input_record.chrom
     #return_rec.format = input_record.format
     return_rec.id = input_record.id
@@ -190,7 +190,11 @@ def clone_sample(new_sample, sample, input_record, output_vcf):
     return_rec.ref = input_record.ref
     return_rec.rlen = input_record.rlen
     return_rec.start = input_record.start
-    return_rec.alts = input_record.alts
+    if input_record.alts is None:
+        return_rec.alts = []
+        return_rec.alts.append(None)
+    else:
+        return_rec.alts = input_record.alts
     return_rec.contig = input_record.contig
     #return_rec.filter = input_record.filter
     ## Not header
