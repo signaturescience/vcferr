@@ -71,6 +71,12 @@ import pysam
     type=float
 )
 
+@click.option('-p', '--phased',
+    help='Logical as to whether or not to return phased genotypes',
+    default=False,
+    type=bool
+)
+
 @click.option('-a', '--seed',
     help='Random number seed',
     default=None,
@@ -79,7 +85,7 @@ import pysam
 
 @click.pass_context
 
-def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm,seed):
+def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm,phased,seed):
     random.seed(seed)
     ## create list of error modes and missigness for checks
     p_args = [p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm]
@@ -164,4 +170,6 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
         elif gt == homref:
             gt = random.choices(homref_homalt_het, weights=(100-(phom_di2_w+phet_di_w+prrmm_w), phom_di2_w, phet_di_w, prrmm_w))[0]
         rec.samples[sample]['GT'] = tuple(gt)
+        if phased:
+            rec.samples[sample].phased = True
         vcf_out.write(rec)
