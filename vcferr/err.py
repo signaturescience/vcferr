@@ -71,12 +71,6 @@ import pysam
     type=float
 )
 
-@click.option('-p', '--phased',
-    help='Logical as to whether or not to return phased genotypes',
-    default=False,
-    type=bool
-)
-
 @click.option('-a', '--seed',
     help='Random number seed',
     default=None,
@@ -85,7 +79,7 @@ import pysam
 
 @click.pass_context
 
-def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm,phased,seed):
+def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm,seed):
     random.seed(seed)
     ## create list of error modes and missigness for checks
     p_args = [p_rarr,p_aara,p_rrra,p_raaa,p_aarr,p_rraa,p_rrmm,p_ramm,p_aamm]
@@ -130,7 +124,7 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
     phom_do_w = int(round(p_aara,2)*100)
     ## get weight for probability of het dropin
     phet_di_w = int(round(p_rrra,2)*100)
-        ## get weight for probability of hom dropin
+    ## get weight for probability of hom dropin
     phom_di_w = int(round(p_raaa,2)*100)
     ## get weight for probability of double hom dropout
     phom_do2_w = int(round(p_aarr,2)*100)
@@ -145,6 +139,7 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
     paamm_w=int(round(p_aamm,2)*100)
 
     for rec in recs:
+        phased=rec.samples[sample].phased
         rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])
         gt=list(rec.samples[sample]['GT'])
         ## use weights for random selections by prob
