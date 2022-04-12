@@ -191,10 +191,15 @@ def clone_sample(new_sample, sample, input_record, output_vcf):
     return_rec.rlen = input_record.rlen
     return_rec.start = input_record.start
     if input_record.alts is None:
-        return_rec.alts = []
-        return_rec.alts.append(None)
+        tmp_alts = []
+        tmp_alts.append('.')
+        return_rec.alts = tuple(tmp_alts)
+        tmp_alleles = list(input_record.alleles)
+        tmp_alleles.append('.')
+        return_rec.alleles = tuple(tmp_alleles)
     else:
         return_rec.alts = input_record.alts
+        return_rec.alleles = input_record.alleles
     return_rec.contig = input_record.contig
     #return_rec.filter = input_record.filter
     ## Not header
