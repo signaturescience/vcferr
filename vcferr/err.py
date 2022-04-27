@@ -133,7 +133,7 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
     phom_do_w = int(round(p_aara,2)*100)
     ## get weight for probability of het dropin
     phet_di_w = int(round(p_rrra,2)*100)
-        ## get weight for probability of hom dropin
+    ## get weight for probability of hom dropin
     phom_di_w = int(round(p_raaa,2)*100)
     ## get weight for probability of double hom dropout
     phom_do2_w = int(round(p_aarr,2)*100)
@@ -151,7 +151,9 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
         ## Code to keep original sample as sample named original_suffix
         if keep_original == True:
             rec = clone_sample(original_suffix, sample, rec, vcf_out)
-        #rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])
+        #rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])=
+        phased=rec.samples[sample].phased
+        rec.samples[sample]['GT'] = list(rec.samples[sample]['GT'])
         gt=list(rec.samples[sample]['GT'])
         ## use weights for random selections by prob
         ## for example (25,75) with homref first would be a 25% chance of het dropout
@@ -176,6 +178,8 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
         elif gt == homref:
             gt = random.choices(homref_homalt_het, weights=(100-(phom_di2_w+phet_di_w+prrmm_w), phom_di2_w, phet_di_w, prrmm_w))[0]
         rec.samples[sample]['GT'] = tuple(gt)
+        if phased:
+            rec.samples[sample].phased = True
         vcf_out.write(rec)
 
 def clone_sample(new_sample, sample, input_record, output_vcf):
