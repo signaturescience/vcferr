@@ -118,25 +118,28 @@ def vcferr(context,input_vcf,sample,output_vcf,p_rarr,p_aara,p_rrra,p_raaa,p_aar
     homref_homalt_het.append(het)
     homref_homalt_het.append(mm)
 
+    ## define precision
+    precision=9
+
     ## get weight for probability of het dropout
-    phet_do_w = int(round(p_rarr,2)*100)
+    phet_do_w = round(p_rarr,precision)*100
     ## get weight for probability of hom dropout
-    phom_do_w = int(round(p_aara,2)*100)
+    phom_do_w = round(p_aara,precision)*100
     ## get weight for probability of het dropin
-    phet_di_w = int(round(p_rrra,2)*100)
+    phet_di_w = round(p_rrra,precision)*100
     ## get weight for probability of hom dropin
-    phom_di_w = int(round(p_raaa,2)*100)
+    phom_di_w = round(p_raaa,precision)*100
     ## get weight for probability of double hom dropout
-    phom_do2_w = int(round(p_aarr,2)*100)
+    phom_do2_w = round(p_aarr,precision)*100
     ## get weight for probability of double hom alt dropin
-    phom_di2_w = int(round(p_rraa,2)*100)
+    phom_di2_w = round(p_rraa,precision)*100
 
     ## get weight for probability of homref to missing
-    prrmm_w=int(round(p_rrmm,2)*100)
+    prrmm_w=round(p_rrmm,precision)*100
     ## get weight for probability of het to missing
-    pramm_w=int(round(p_ramm,2)*100)
+    pramm_w=round(p_ramm,precision)*100
     ## get weight for probability of homalt to missing
-    paamm_w=int(round(p_aamm,2)*100)
+    paamm_w=round(p_aamm,precision)*100
 
     for rec in recs:
         phased=rec.samples[sample].phased

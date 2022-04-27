@@ -5,7 +5,7 @@ README=(HERE/"README.md").read_text()
 
 setup(
     name='vcferr',
-    version='1.0.1',
+    version='1.0.2',
     description='Probabilistic VCF genotype error simulation',
     long_description=README,
     long_description_content_type="text/markdown",
