@@ -1,11 +1,11 @@
 ## Local development
 
-Check out a new branch. 
-Make changes. 
-Build with `pip install .`. 
-Test.
-Push developmental branch to GitHub.
-Open a PR and request review from the maintainers.
+1. Check out a new branch. 
+1. Make changes. 
+1. Build with `pip install .`. 
+1. Test.
+1. Push developmental branch to GitHub.
+1. Open a PR and request review from the maintainers.
 
 ## PyPI
 
