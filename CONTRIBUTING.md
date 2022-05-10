@@ -9,7 +9,10 @@
 
 ## PyPI
 
-FIXME
+1. Bump version in `setup.py` and `__init__.py`
+1. Build the release files by running `pyton -m build` at repo root
+1. Optionally remove previous `.whl` and `.tar.gz` versions of package from `dist/`.
+1. Upload to PyPI with `twine upload dist/*` (NOTE: This will ask you for username/password. Make sure to set up a token with PyPi and use `__token__` as username and the token value with the pypi- prefix for password.)
 
 ## Bioconda
 
